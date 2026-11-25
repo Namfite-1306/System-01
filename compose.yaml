@@ -1,0 +1,35 @@
+services:
+  studio:
+    build: .
+    ports:
+      - "127.0.0.1:4318:4318"
+    environment:
+      DATABASE_BACKEND: ${DATABASE_BACKEND:-sqlite}
+      STUDIO_API_TOKEN: ${STUDIO_API_TOKEN:?Set STUDIO_API_TOKEN in .env before Docker startup}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4.1-mini}
+      SUPABASE_URL: ${SUPABASE_URL:-}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY:-}
+      PORTFOLIO_WEBHOOK_URL: ${PORTFOLIO_WEBHOOK_URL:-}
+      PORTFOLIO_WEBHOOK_TOKEN: ${PORTFOLIO_WEBHOOK_TOKEN:-}
+    volumes:
+      - studio-data:/app/data
+    restart: unless-stopped
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:latest
+    ports:
+      - "127.0.0.1:5678:5678"
+    environment:
+      TZ: Asia/Ho_Chi_Minh
+      GENERIC_TIMEZONE: Asia/Ho_Chi_Minh
+      N8N_HOST: localhost
+      N8N_PORT: 5678
+      N8N_PROTOCOL: http
+      N8N_SECURE_COOKIE: "false"
+    volumes:
+      - n8n-data:/home/node/.n8n
+      - ./workflows:/workflows:ro
+    restart: unless-stopped
+volumes:
+  studio-data:
+  n8n-data:

@@ -1,0 +1,24 @@
+{
+  "name": "research-studio",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node --env-file-if-exists=.env server.mjs",
+    "test": "node --test test/*.test.mjs",
+    "check": "node scripts/check.mjs",
+    "workflows": "node scripts/build-workflows.mjs",
+    "format": "prettier --write \"dist/**/*.{js,css,html}\" \"lib/*.mjs\" \"scripts/*.mjs\" \"test/*.mjs\" server.mjs package.json",
+    "format:check": "prettier --check \"dist/**/*.{js,css,html}\" \"lib/*.mjs\" \"scripts/*.mjs\" \"test/*.mjs\" server.mjs package.json"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.119.2",
+    "@vercel/functions": "^3.11.4",
+    "fast-xml-parser": "^5.0.0",
+    "pdfkit": "^0.17.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "prettier": "3.6.2"
+  }
+}

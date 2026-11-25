@@ -1,0 +1,92 @@
+{
+  "name": "Research Studio — Create case API",
+  "nodes": [
+    {
+      "id": "webhook",
+      "name": "Authenticated case request",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        260,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "research-case",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "notes": "Configure separate inbound Header Auth; this webhook is private."
+    },
+    {
+      "id": "case",
+      "name": "Start case job",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        520,
+        300
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "http://studio:4318/api/cases",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({event_id: $json.body.event_id, mode: $json.body.mode || \"template\"}) }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "notes": "Select Header Auth credential: Authorization = Bearer <STUDIO_API_TOKEN>. Do not put the token into workflow JSON."
+    },
+    {
+      "id": "respond",
+      "name": "Return job ID",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        780,
+        300
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {
+          "responseCode": 202
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Authenticated case request": {
+      "main": [
+        [
+          {
+            "node": "Start case job",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start case job": {
+      "main": [
+        [
+          {
+            "node": "Return job ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false,
+  "pinData": {}
+}

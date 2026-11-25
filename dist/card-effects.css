@@ -1,0 +1,123 @@
+/* Decoration only: dimensions, content, pointer targets and grid layouts stay unchanged. */
+.magic-card {
+  --magic-color: 204, 255, 0;
+  position: relative;
+  transition:
+    transform 220ms cubic-bezier(0.2, 0.7, 0.3, 1),
+    border-color 180ms ease;
+}
+html[data-theme='classic'] .magic-card {
+  --magic-color: 33, 119, 95;
+}
+.magic-card.magic-tilting {
+  transform: perspective(1000px) translate3d(var(--magic-tx, 0px), var(--magic-ty, 0px), 0)
+    rotateX(var(--magic-rx, 0deg)) rotateY(var(--magic-ry, 0deg));
+}
+.magic-effects {
+  display: block;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+  user-select: none;
+  z-index: 1;
+}
+.magic-effects::before,
+.magic-effects::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 220ms ease;
+  pointer-events: none;
+}
+.magic-effects::before {
+  background: radial-gradient(
+    300px circle at var(--magic-x, 50%) var(--magic-y, 50%),
+    rgba(var(--magic-color), 0.085),
+    transparent 75%
+  );
+}
+.magic-effects::after {
+  padding: 1px;
+  background: radial-gradient(
+    260px circle at var(--magic-x, 50%) var(--magic-y, 50%),
+    rgba(var(--magic-color), 0.8),
+    transparent 70%
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+.magic-hover > .magic-effects::before,
+.magic-hover > .magic-effects::after {
+  opacity: 1;
+}
+.magic-star {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  opacity: 0;
+  background: rgba(var(--magic-color), 0.8);
+  box-shadow: 0 0 7px rgba(var(--magic-color), 0.4);
+  animation: magic-star-float 2600ms var(--star-delay, 0ms) ease-in-out infinite;
+  pointer-events: none;
+}
+.magic-star:nth-child(3n) {
+  width: 2px;
+  height: 2px;
+}
+.magic-ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(var(--magic-color), 0.15),
+    rgba(var(--magic-color), 0.035) 55%,
+    transparent 70%
+  );
+  pointer-events: none;
+  animation: magic-ripple 700ms ease-out forwards;
+}
+@keyframes magic-star-float {
+  0%,
+  100% {
+    opacity: 0;
+    transform: translate(0, 8px) scale(0.4);
+  }
+  25% {
+    opacity: 0.55;
+  }
+  65% {
+    opacity: 0.35;
+    transform: translate(var(--star-drift, 8px), -10px) scale(1);
+  }
+}
+@keyframes magic-ripple {
+  from {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(0.05);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.7);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .magic-card,
+  .magic-card.magic-tilting {
+    transform: none !important;
+    transition: none;
+  }
+  .magic-effects {
+    display: none;
+  }
+}

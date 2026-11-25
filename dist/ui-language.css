@@ -1,0 +1,40 @@
+#ui-language-toggle {
+  gap: 5px;
+  flex-shrink: 0;
+  min-width: 56px;
+  font-size: 11px;
+}
+#ui-language-label {
+  display: inline !important;
+  font-size: 13px;
+}
+#ui-language-toggle > span:first-child {
+  font-size: 14px;
+}
+@media (max-width: 650px) {
+  #ui-language-toggle {
+    min-width: 49px;
+    width: auto;
+    padding: 5px 7px;
+  }
+  .top-meta {
+    gap: 5px;
+  }
+  .topbar {
+    gap: 7px;
+  }
+}
+@media (max-width: 380px) {
+  .topbar .connection {
+    font-size: 12px;
+    padding: 4px 6px;
+  }
+  .topbar {
+    padding-left: 9px;
+    padding-right: 9px;
+  }
+  .topbar > div:first-child {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+}
