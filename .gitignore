@@ -1,5 +1,11 @@
 node_modules/
 .env
+.env.*
+!.env.example
+.vercel/
+.openai/
+output/
 data/
 *.tar.gz
 test-artifacts/
+dist/auth-client.js

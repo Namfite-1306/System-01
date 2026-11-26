@@ -1,0 +1,58 @@
+.login-page {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+.login-panel {
+  width: min(100%, 440px);
+  padding: 0;
+}
+.login-brand {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 20px;
+  color: var(--ink);
+}
+.login-panel h1 {
+  margin: 40px 0 12px;
+}
+.login-panel > p {
+  color: var(--muted);
+  margin-bottom: 32px;
+  line-height: 1.6;
+}
+.login-panel .field {
+  margin-bottom: 20px;
+}
+.login-panel .field label {
+  display: block;
+  font-size: 15px;
+  margin-bottom: 8px;
+}
+.login-panel .field input {
+  width: 100%;
+  padding: 12px;
+  min-height: 48px;
+  font-size: 16px;
+}
+.login-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 28px 0 16px;
+}
+.login-actions .btn {
+  min-height: 44px;
+  flex: 1 1 150px;
+  font-size: 15px;
+}
+#auth-message {
+  min-height: 48px;
+  margin-top: 20px;
+  color: var(--muted);
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.login-panel [hidden] {
+  display: none;
+}

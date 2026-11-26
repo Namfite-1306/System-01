@@ -1,5 +1,49 @@
 # Research Studio
 
+## Triển khai Vercel và Supabase
+
+Project Supabase dùng cho bản web là `https://ozxiphcwcgpwukffehlt.supabase.co`.
+Địa chỉ Vercel là `https://system-01-topaz.vercel.app`.
+
+1. Trong Supabase SQL Editor, chạy toàn bộ `supabase/003_multi_user.sql`.
+   Bảng `research_feed_records` chứa tin RSS chung. Bảng `research_user_records`
+   chứa bài lưu, case, bản nháp, hồ sơ và hệ sinh thái theo tài khoản.
+   Chính sách RLS kiểm tra `owner_id = auth.uid()` cho đọc và ghi.
+2. Trong Supabase Authentication → URL Configuration, đặt Site URL thành
+   `https://system-01-topaz.vercel.app`. Thêm các Redirect URL
+   `https://system-01-topaz.vercel.app/login.html` và
+   `https://system-01-topaz.vercel.app/login.html?reset=1`.
+   Bật Email provider. Đăng ký gửi email xác nhận. Cấu hình SMTP riêng và hạn mức
+   gửi phù hợp khi mở đăng ký cho người dùng thật.
+3. Trong Vercel, chọn Framework Preset **Other** và Root Directory là thư mục gốc
+   của repository GitHub `Namfite-1306/System-01`. `vercel.json` khai báo build,
+   đầu ra `dist`, API Node.js 24, vùng Singapore và lịch RSS.
+4. URL Supabase và publishable key đã khai báo công khai trong `vercel.json`.
+   Trong Environment Variables của Vercel, thêm `SUPABASE_SERVICE_ROLE_KEY`
+   và `CRON_SECRET` cho Production để chạy lịch RSS. Lấy service_role JWT key ở
+   Supabase Settings → API Keys → Legacy API Keys. Dùng một chuỗi bí mật ngẫu nhiên
+   tối thiểu 32 ký tự cho CRON_SECRET. Bật các biến tương ứng cho Preview nếu cần thử cron.
+   API của người dùng xác thực bằng Supabase Auth và truy cập database bằng JWT
+   của chính người dùng. Service-role key chỉ dùng trong tác vụ RSS phía máy chủ.
+5. Commit và push từ VS Code. Vercel build bằng `npm run build`. Sau deploy,
+   `/api/config` trả cấu hình công khai và trang `/login.html` cho đăng nhập,
+   tạo tài khoản, đặt lại mật khẩu. `/api/health` yêu cầu phiên đăng nhập hợp lệ.
+6. Lịch `0 23 * * *` chạy hằng ngày vào khoảng 06 giờ Việt Nam. Vercel Hobby có
+   độ lệch thời gian trong giờ được lên lịch. Nút **Lấy tin mới** và tìm tin Internet
+   chạy theo yêu cầu của người đang đăng nhập. Các tác vụ dùng `waitUntil`, tối đa
+   300 giây trên cấu hình này. Tìm kiếm lớn có thể cần thử lại với ít ngôn ngữ
+   hoặc khoảng thời gian ngắn hơn nếu chạm giới hạn.
+
+Kiểm tra sau deploy bằng hai tài khoản riêng. Tài khoản A lưu tin, tạo case và
+bản nháp, sau đó đăng nhập B để kiểm tra kho riêng của B. Trang `/portfolio/{id}`
+chỉ lấy snapshot của bài đã bấm xác nhận xuất bản. Dữ liệu SQLite trên máy có thể
+xuất JSON ở Nguồn & thiết lập. Việc chuyển dữ liệu đó vào tài khoản Supabase cần
+một bước nhập dữ liệu riêng.
+
+Tham khảo [Vercel Functions](https://vercel.com/docs/functions),
+[Vercel Cron](https://vercel.com/docs/cron-jobs/usage-and-pricing) và
+[Supabase RLS](https://supabase.com/docs/guides/database/postgres/row-level-security).
+
 Hệ thống nghiên cứu cá nhân chạy local: RSS → sự kiện → bản đồ liên kết → case → bài phân tích → PDF / portfolio.
 
 ## Chạy ngay trên máy này

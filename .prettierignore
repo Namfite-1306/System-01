@@ -4,3 +4,4 @@ data
 output
 test-artifacts
 package-lock.json
+dist/auth-client.js

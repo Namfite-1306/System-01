@@ -1972,6 +1972,10 @@ button[aria-pressed='true']#saved-filter {
 .sidebar nav {
   overflow: auto;
 }
+.profile-mini > div {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
 .sidebar i {
   font-size: 13px;
 }

@@ -1,15 +1,17 @@
 export function createApi({ getToken, setToken, requestToken, fetcher = fetch }) {
   return async function api(path, method = 'GET', body) {
-    const send = () =>
-      fetcher(`/api${path}`, {
+    const send = async () => {
+      const accessToken = await getToken();
+      return fetcher(`/api${path}`, {
         method,
         headers: {
           ...(body ? { 'Content-Type': 'application/json' } : {}),
-          ...(getToken() ? { Authorization: `Bearer ${getToken()}` } : {}),
+          ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
         },
         body: body ? JSON.stringify(body) : undefined,
         signal: AbortSignal.timeout(30000),
       });
+    };
     let response;
     try {
       response = await send();
@@ -17,7 +19,7 @@ export function createApi({ getToken, setToken, requestToken, fetcher = fetch })
       throw new Error('Không kết nối được máy chủ. Kiểm tra server rồi thử lại.');
     }
     if (response.status === 401) {
-      const token = requestToken();
+      const token = await requestToken();
       if (token) {
         setToken(token);
         response = await send();

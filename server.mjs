@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { timingSafeEqual, randomUUID } from 'node:crypto';
 import { Store } from './lib/store.mjs';
 import { Studio, error } from './lib/service.mjs';
-import { SOURCES, SEARCH_DAYS, validateLanguages } from './lib/news.mjs';
+import { SOURCES, SEARCH_DAYS, validateLanguages, matchesSearch } from './lib/news.mjs';
 import { Translator } from './lib/translation.mjs';
 import { Ecosystems } from './lib/ecosystems.mjs';
 import { pdfBuffer } from './lib/pdf.mjs';
@@ -44,11 +44,13 @@ export async function createServer(options = {}) {
     model: process.env.OPENAI_MODEL || 'gpt-4.1-mini',
     portfolioUrl: process.env.PORTFOLIO_WEBHOOK_URL,
     portfolioToken: process.env.PORTFOLIO_WEBHOOK_TOKEN,
+    serverless: options.serverless,
+    defer: options.defer,
   });
-  await studio.initialize();
+  if (!options.skipInitialize) await studio.initialize();
   const ecosystems = new Ecosystems(store);
   const translator = new Translator();
-  const token = process.env.STUDIO_API_TOKEN || '';
+  const token = options.authenticated ? '' : process.env.STUDIO_API_TOKEN || '';
   const server = http.createServer(async (req, res) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('Referrer-Policy', 'same-origin');
@@ -66,10 +68,12 @@ export async function createServer(options = {}) {
       const localHost = req.headers.host;
       if (
         !token &&
+        !options.authenticated &&
         !['localhost', '127.0.0.1', '[::1]'].includes(new URL(`http://${localHost}`).hostname)
       )
         throw error('Host không được phép', 403);
       if (origin && new URL(origin).host !== localHost) throw error('Origin không được phép', 403);
+      if (path === '/api/config' && method === 'GET') return json({ auth: 'local' });
       if (path.startsWith('/api/') && token) {
         const given = (req.headers.authorization || '').replace(/^Bearer /, '');
         const x = Buffer.from(given),
@@ -102,7 +106,9 @@ export async function createServer(options = {}) {
           ai_configured: Boolean(studio.config.openaiKey),
           model: studio.config.model,
           portfolio_configured: Boolean(studio.config.portfolioUrl),
-          scheduler_minutes: Number(process.env.INGEST_INTERVAL_MINUTES || 0),
+          scheduler_minutes: options.serverless
+            ? 1440
+            : Number(process.env.INGEST_INTERVAL_MINUTES || 0),
         });
       if (path === '/api/state' && method === 'GET') {
         const kinds = ['event', 'source', 'case', 'analysis', 'job', 'ecosystem'];
@@ -141,7 +147,7 @@ export async function createServer(options = {}) {
         const to = url.searchParams.get('to');
         events = events.filter(
           (e) =>
-            (!q || `${e.title} ${e.summary}`.toLowerCase().includes(q)) &&
+            (!q.trim() || matchesSearch(e, q)) &&
             (!topic || e.topic === topic) &&
             (!from || (e.published_at || '') >= from) &&
             (!to || (e.published_at || '') <= to),

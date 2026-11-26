@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0a0a0a" />
+    <title>Đăng nhập — Research Studio</title>
+    <link rel="stylesheet" href="/style.css" />
+    <link rel="stylesheet" href="/fonts/fonts.css" />
+    <link rel="stylesheet" href="/workspace-theme.css" />
+    <link rel="stylesheet" href="/login.css" />
+  </head>
+  <body class="login-page">
+    <main class="login-panel">
+      <a href="/landing.html" class="login-brand">Research Studio</a>
+      <h1>Đăng nhập</h1>
+      <p>Mở thư viện tin, case và bản nháp của bạn.</p>
+      <form id="login-form" aria-describedby="auth-message">
+        <div class="field" id="email-field">
+          <label for="auth-email">Email</label>
+          <input id="auth-email" type="email" autocomplete="email" required maxlength="254" />
+        </div>
+        <div class="field">
+          <label for="auth-password">Mật khẩu</label>
+          <input
+            id="auth-password"
+            type="password"
+            autocomplete="current-password"
+            required
+            minlength="8"
+            maxlength="128"
+          />
+        </div>
+        <div class="login-actions">
+          <button
+            class="btn primary"
+            id="signin"
+            name="action"
+            value="signin"
+            type="submit"
+            disabled
+          >
+            Đăng nhập
+          </button>
+          <button class="btn" name="action" value="signup" type="submit" disabled>
+            Tạo tài khoản
+          </button>
+        </div>
+        <button class="card-action" id="reset-password" value="reset" type="button" disabled>
+          Quên mật khẩu
+        </button>
+        <p id="auth-message" role="status" aria-live="polite">Đang kết nối…</p>
+      </form>
+    </main>
+    <script src="/auth-client.js" type="module"></script>
+  </body>
+</html>

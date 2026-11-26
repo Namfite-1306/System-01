@@ -5,6 +5,7 @@ import { ecosystemView, bindEcosystems } from './ecosystems.js';
 import { bindGraph } from './graph.js';
 import { esc, matchesSearch, wordCount, markdownPreview } from './ui-utils.js';
 import { createApi } from './api.js';
+import { accessToken } from './auth-client.js';
 const confirm = (message) => window.confirm(translateUI(message));
 const prompt = (message, value) => window.prompt(translateUI(message), value);
 const $ = (s) => document.querySelector(s);
@@ -41,7 +42,7 @@ let state = { events: [], sources: [], cases: [], analyses: [], jobs: [], profil
   toastTimer;
 let renderVersion = 0;
 const canLeave = () => !dirty || confirm('Có thay đổi chưa lưu. Rời trang và bỏ thay đổi?');
-const draftKey = (id) => `studio-draft:${id}`;
+const draftKey = (id) => `studio-draft:${document.documentElement.dataset.userId || 'local'}:${id}`;
 function rememberDraft() {
   try {
     sessionStorage.setItem(
@@ -80,12 +81,14 @@ const timestamp = (s) =>
     : 'Chưa cập nhật';
 let token = sessionStorage.getItem('studio-token') || '';
 const api = createApi({
-  getToken: () => token,
+  getToken: () => document.documentElement.dataset.userId ? accessToken() : token,
   setToken: (value) => {
     token = value;
     sessionStorage.setItem('studio-token', value);
   },
-  requestToken: () => prompt('Nhập STUDIO_API_TOKEN để kết nối (chỉ lưu trong phiên này):'),
+  requestToken: () => document.documentElement.dataset.userId
+    ? accessToken(true)
+    : prompt('Nhập STUDIO_API_TOKEN để kết nối (chỉ lưu trong phiên này):'),
 });
 initTranslation(api);
 initUILanguage();
@@ -587,8 +590,9 @@ async function saveCurrent() {
   return updated;
 }
 async function download(path, name) {
+  const downloadToken = document.documentElement.dataset.userId ? await accessToken() : token;
   const r = await fetch(`/api${path}`, {
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    headers: downloadToken ? { Authorization: `Bearer ${downloadToken}` } : {},
   });
   if (!r.ok) {
     const e = await r.json();
